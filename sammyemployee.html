@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Management System</title>
+    <style>body {
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+    background-color: #f4f4f4;
+    margin: 30px;
+}
+
+ .container {
+    width: 50%;
+    margin: auto;
+    background: white;
+    padding: 30px;
+    box-shadow: 0px 0px 10px #ccc;
+    
+ }
+
+  input, button {
+    padding: 10px;
+    margin: 5px;
+    font-size: 16px;
+
+  }
+
+  button {
+    background: #28a745;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  button:hover {
+    background: #218838;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+   
+    th, td {
+        padding: 10px;
+        border: 1px solid black;
+    }
+    th{
+        background: #007bff;
+        color: white;
+    }
+     button.delete {
+        background: red;
+     }
+     button.edit {
+        background: orange;
+     }</style>
+</head>
+<body>
+    <div class="container">
+        <h1>Employee Management System</h1>
+        <div class="form-container">
+            <input type="text" id="name" placeholder="Employee Name">
+            <input type="text"
+            id="postion" placeholder="Position">
+                   <input type="number" id="salary" placeholder="Salary">
+                   <button onclick="addEmployee()">Add Employee</button>
+        </div>
+        <table>
+            <thead><tr>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Salary</th>
+                <th>Actions</th>
+            </tr></thead>
+            <tbody id="employeeTable"></tbody>
+        </table>
+    </div>
+    <script>
+document.addEventListener("DOMContentLoaded", loadEmployees);
+
+function addEmployee() {
+    let name = document.getElementById("name").value;
+    let position = document.getElementById("postion").value;
+    let salary = document.getElementById("salary").value;
+
+    if (name === "" || position === "" || salary === "") {
+        alert("Please fill all fields!");
+        return;
+    }
+
+    let employees = JSON.parse(localStorage.getItem("employees")) || [];
+    employees.push({ name, position, salary });
+
+    localStorage.setItem("employees", JSON.stringify(employees));
+    loadEmployees();
+    document.getElementById("name").value = "";
+    document.getElementById("postion").value = "";
+    document.getElementById("salary").value = "";
+}
+
+function loadEmployees() {
+    let table = document.getElementById("employeeTable");
+    table.innerHTML = "";
+    let employees = JSON.parse(localStorage.getItem("employees")) || [];
+
+    employees.forEach((emp, index) => {
+        let row = table.insertRow();
+        row.innerHTML = `
+            <td>${emp.name}</td>
+            <td>${emp.position}</td>
+            <td>${emp.salary}</td>
+            <td>
+                <button class="edit" onclick="editEmployee(${index})">Edit</button>
+                <button class="delete" onclick="deleteEmployee(${index})">Delete</button>
+            </td>
+        `;
+    });
+}
+
+function editEmployee(index) {
+    let employees = JSON.parse(localStorage.getItem("employees")) || [];
+    let employee = employees[index];
+
+    document.getElementById("name").value = employee.name;
+    document.getElementById("postion").value = employee.position;
+    document.getElementById("salary").value = employee.salary;
+
+   
+    deleteEmployee(index);
+}
+
+function deleteEmployee(index) {
+    let employees = JSON.parse(localStorage.getItem("employees")) || [];
+    employees.splice(index, 1);
+    localStorage.setItem("employees", JSON.stringify(employees));
+    loadEmployees();
+}
+</script>
+
+</body>
+
+</html>
