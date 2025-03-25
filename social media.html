@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social Media Platform</title>
+  <style>
+    
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f0f2f5;
+  padding: 20px;
+  color: #333;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: white;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  background-color: #4CAF50;
+  padding: 10px 20px;
+  border-radius: 10px;
+}
+
+header h1 {
+  font-size: 28px;
+  color: white;
+  letter-spacing: 1px;
+}
+
+header .user-info button {
+  padding: 10px 15px;
+  background-color: #fff;
+  color: #4CAF50;
+  border: 2px solid #4CAF50;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+header .user-info button:hover {
+  background-color: #4CAF50;
+  color: white;
+}
+
+main {
+  margin-top: 20px;
+}
+
+#profile {
+  text-align: center;
+}
+
+#profile input {
+  padding: 15px;
+  margin-top: 15px;
+  border: 2px solid #ccc;
+  border-radius: 30px;
+  width: 70%;
+  font-size: 16px;
+}
+
+#feed {
+  margin-top: 30px;
+}
+
+.post-form {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+.post-form textarea {
+  width: 100%;
+  padding: 15px;
+  border-radius: 10px;
+  border: 2px solid #ccc;
+  font-size: 16px;
+  margin-bottom: 15px;
+  resize: none;
+}
+
+.post-form input[type="file"],
+.post-form input[type="text"] {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  border: 2px solid #ccc;
+}
+
+.post-form button {
+  padding: 12px 30px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.post-form button:hover {
+  background-color: #45a049;
+}
+
+.post {
+  padding: 20px;
+  background-color: #fff;
+  margin-bottom: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.post p {
+  font-size: 18px;
+  color: #333;
+}
+
+.post img, .post video {
+  width: 100%;
+  height: auto;
+  margin-top: 10px;
+  border-radius: 10px;
+}
+
+.post .actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.post .actions button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #4CAF50;
+  transition: color 0.3s ease;
+}
+
+.post .actions button:hover {
+  color: #45a049;
+}
+
+.comments p {
+  font-size: 16px;
+  margin-top: 10px;
+  color: #555;
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>SocialChat</h1>
+      <div class="user-info">
+        <button id="profileBtn">Profile</button>
+        <button id="logoutBtn">Logout</button>
+      </div>
+    </header>
+
+    <main>
+      <div id="profile">
+        <h2>Create Profile</h2>
+        <input type="text" id="username" placeholder="Enter your username">
+        <button id="createProfileBtn">Create Profile</button>
+      </div>
+
+      <div id="feed" class="feed-container">
+        <h2>Feed</h2>
+        
+      </div>
+
+      <div class="post-form">
+        <h3>Share a Post</h3>
+        <textarea id="postContent" placeholder="What's on your mind?" rows="4"></textarea>
+        <input type="file" id="imageUpload" accept="image/*,video/*">
+        <input type="text" id="postTags" placeholder="Add tags (comma separated)">
+        <button id="postBtn">Post</button>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    let currentUser = null;
+let posts = [];
+
+
+let profiles = [];
+
+document.getElementById("createProfileBtn").addEventListener("click", () => {
+  const username = document.getElementById("username").value.trim();
+  if (username) {
+    currentUser = { username, posts: [] };
+    profiles.push(currentUser);
+    document.getElementById("profile").style.display = "none";
+    document.getElementById("feed").style.display = "block";
+    document.getElementById("username").value = "";
+    renderFeed();
+    updateUserUI();
+  }
+});
+
+document.getElementById("postBtn").addEventListener("click", () => {
+  const content = document.getElementById("postContent").value.trim();
+  const tags = document
+    .getElementById("postTags")
+    .value.trim()
+    .split(",")
+    .map((tag) => tag.trim());
+  const imageFile = document.getElementById("imageUpload").files[0];
+
+  if (content || imageFile) {
+    const newPost = {
+      user: currentUser.username,
+      content,
+      image: imageFile ? URL.createObjectURL(imageFile) : null,
+      tags,
+      likes: 0,
+      comments: [],
+    };
+
+    posts.unshift(newPost);
+    currentUser.posts.push(newPost);
+    renderFeed();
+    clearPostForm();
+  }
+});
+
+
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  currentUser = null;
+  posts = [];
+  document.getElementById("profile").style.display = "block";
+  document.getElementById("feed").style.display = "none";
+  document.getElementById("username").value = "";
+  updateUserUI();
+});
+
+function renderFeed() {
+  const feedContainer = document.getElementById("feed");
+  feedContainer.innerHTML = ""; 
+
+  posts.forEach((post) => {
+    const postElement = document.createElement("div");
+    postElement.classList.add("post");
+
+    postElement.innerHTML = `
+      <p><strong>${post.user}</strong></p>
+      <p>${post.content}</p>
+      ${post.image ? `<img src="${post.image}" alt="Post Image">` : ""}
+      <div class="actions">
+        <button onclick="likePost(${posts.indexOf(post)})">Like (${
+      post.likes
+    })</button>
+        <button onclick="commentOnPost(${posts.indexOf(post)})">Comment</button>
+      </div>
+      <div class="comments">
+        ${post.comments
+          .map(
+            (comment) =>
+              `<p><strong>${comment.user}:</strong> ${comment.text}</p>`
+          )
+          .join("")}
+      </div>
+    `;
+
+    feedContainer.appendChild(postElement);
+  });
+}
+
+function likePost(postIndex) {
+  posts[postIndex].likes++;
+  renderFeed();
+}
+
+function commentOnPost(postIndex) {
+  const commentText = prompt("Enter your comment:");
+  if (commentText) {
+    const comment = { user: currentUser.username, text: commentText };
+    posts[postIndex].comments.push(comment);
+    renderFeed();
+  }
+}
+
+function clearPostForm() {
+  document.getElementById("postContent").value = "";
+  document.getElementById("imageUpload").value = "";
+  document.getElementById("postTags").value = "";
+}
+
+function updateUserUI() {
+  if (currentUser) {
+    document.getElementById(
+      "profileBtn"
+    ).textContent = `Hello, ${currentUser.username}`;
+    document.getElementById("logoutBtn").style.display = "inline-block";
+  } else {
+    document.getElementById("profileBtn").textContent = "Profile";
+    document.getElementById("logoutBtn").style.display = "none";
+  }
+}
+
+  </script>
+</body>
+</html>
